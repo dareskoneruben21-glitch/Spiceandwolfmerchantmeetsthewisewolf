@@ -433,7 +433,7 @@ footer span{color:var(--accent);font-weight:700;}
   <span class="sticky-top-title" id="stickyTopTitle">Spice and Wolf: MERCHANT MEETS THE WISE WOLF</span>
 </div>
 <div class="hero-backdrop-wrap" id="heroBgWrap">
-  <img class="hero-backdrop" id="heroBg" src="https://image.tmdb.org/t/p/original/9pr2cLzLltsCC98S61mrtpiBeia.jpg" alt="" onerror="this.style.display='none';">
+  <img class="hero-backdrop" id="heroBg" src="https://image.tmdb.org/t/p/original/qWWw2qvS8kmQsY1JB3meqUvFN4V.jpg" alt="" onerror="this.style.display='none';">
   <div class="hero-vignette"></div>
 </div>
 <div class="hero-scroll-dark" id="heroScrollDark"><div class="hero-scroll-dark-inner" id="heroScrollDarkInner"></div></div>
@@ -1723,10 +1723,11 @@ function _updateSortUI(){
 function setSortOrder(order){
   epSortOrder=order;
   renderEpisodes(currentSeason);
+  restoreDownloadStates();
   closeSortSheet();
 }
 function changeSeason(n){
-  currentSeason=parseInt(n);updateSeasonLabel();renderEpisodes(currentSeason);
+  currentSeason=parseInt(n);updateSeasonLabel();renderEpisodes(currentSeason);restoreDownloadStates();
   document.getElementById('episodesSection').scrollIntoView({behavior:'smooth'});
 }
 function nextSeason(){if(currentSeason<TOTAL_SEASONS)changeSeason(currentSeason+1);}
@@ -1921,6 +1922,34 @@ function downloadEpDetail(e){
   };
   AndroidStorage.downloadPrivate(videoUrl,filename);
 }
+function restoreDownloadStates(){
+  if(typeof AndroidStorage==='undefined'||typeof AndroidStorage.fileExists!=='function')return;
+  // Restaurar botones de episodios
+  const eps=SEASONS[currentSeason];
+  if(eps){
+    eps.forEach(function(ep){
+      const key='s'+currentSeason+'e'+ep.n;
+      const filename=key+'.mp4';
+      try{
+        if(AndroidStorage.fileExists(filename)){
+          const b=document.getElementById('dlbtn_'+key);
+          if(b){b.classList.add('dl-done');b.classList.remove('dl-loading');}
+        }
+      }catch(e){}
+    });
+  }
+  // Restaurar botón de película
+  if(typeof MOVIE_LINK!=='undefined'&&MOVIE_LINK&&MOVIE_LINK!=='#'&&typeof SERIES_TITLE!=='undefined'){
+    try{
+      const safeTitle=SERIES_TITLE.toLowerCase().replace(/[^a-z0-9]/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'')||'pelicula';
+      const filename=safeTitle+'.mp4';
+      if(AndroidStorage.fileExists(filename)){
+        const b=document.getElementById('movieDlBtn');
+        if(b){b.classList.add('dl-done');b.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg><span>Descargada</span>';}
+      }
+    }catch(e){}
+  }
+}
 function toggleEpDetailMenu(e){
   e.preventDefault();e.stopPropagation();
   const m=document.getElementById('epDetailMenu');
@@ -1970,6 +1999,7 @@ function shareEpDetail(){
     currentSeason=1;
   }
   renderEpisodes(currentSeason);
+  restoreDownloadStates();
   updateSeasonLabel();
   // PRIORIDAD 1: hash #ep-N en la URL → volvemos del reproductor, ir directo al episodio
   var _hashEp=0;
