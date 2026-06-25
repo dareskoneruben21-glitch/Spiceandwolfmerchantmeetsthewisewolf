@@ -1764,7 +1764,7 @@ function downloadEp(e,key,epNum){
     const base=link.startsWith('http')?link:'https://x'+link;
     const u=new URL(base);
     videoUrl=u.searchParams.get('video')||'';
-    if(videoUrl)videoUrl=decodeURIComponent(videoUrl);
+    if(videoUrl){videoUrl=decodeURIComponent(videoUrl);try{videoUrl=atob(videoUrl);}catch(e){}}
   }catch(err){}
   if(!videoUrl){showAmModal('No se encontró el video de este episodio.');return;}
   const filename=key+'.mp4';
@@ -1793,7 +1793,7 @@ function _extractVideoUrl(link){
     const base=link.startsWith('http')?link:'https://x'+link;
     const u=new URL(base);
     videoUrl=u.searchParams.get('video')||'';
-    if(videoUrl)videoUrl=decodeURIComponent(videoUrl);
+    if(videoUrl){videoUrl=decodeURIComponent(videoUrl);try{videoUrl=atob(videoUrl);}catch(e){}}
   }catch(err){}
   return videoUrl;
 }
@@ -1895,7 +1895,7 @@ function downloadEpDetail(e){
     const base=link.startsWith('http')?link:'https://x'+link;
     const u=new URL(base);
     videoUrl=u.searchParams.get('video')||'';
-    if(videoUrl)videoUrl=decodeURIComponent(videoUrl);
+    if(videoUrl){videoUrl=decodeURIComponent(videoUrl);try{videoUrl=atob(videoUrl);}catch(e){}}
   }catch(err){}
   if(!videoUrl){showAmModal('No se encontró el video de este episodio.');return;}
   const key='s'+sn+'e'+epNum;
