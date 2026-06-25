@@ -1514,8 +1514,7 @@ function renderEpisodes(sn){
             try{cur.searchParams.set('nextUrl',btoa(unescape(encodeURIComponent(nfl))));}catch(e2){}
           }
         }
-        // Añadir epkey para que Kotlin pueda encontrar el archivo descargado (s1e1.mp4)
-        try{cur.searchParams.set('epkey','s'+sn+'e'+ep.n);}catch(e2){}
+        // epkey eliminado — se usa el player original, no reproducción offline
         fl=fl.startsWith('http')?cur.toString():cur.toString().replace('https://x','');
       }catch(e){}
     }
