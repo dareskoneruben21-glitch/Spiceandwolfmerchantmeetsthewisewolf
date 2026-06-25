@@ -433,7 +433,7 @@ footer span{color:var(--accent);font-weight:700;}
   <span class="sticky-top-title" id="stickyTopTitle">Spice and Wolf: MERCHANT MEETS THE WISE WOLF</span>
 </div>
 <div class="hero-backdrop-wrap" id="heroBgWrap">
-  <img class="hero-backdrop" id="heroBg" src="https://image.tmdb.org/t/p/original/qWWw2qvS8kmQsY1JB3meqUvFN4V.jpg" alt="" onerror="this.style.display='none';">
+  <img class="hero-backdrop" id="heroBg" src="https://image.tmdb.org/t/p/original/9pr2cLzLltsCC98S61mrtpiBeia.jpg" alt="" onerror="this.style.display='none';">
   <div class="hero-vignette"></div>
 </div>
 <div class="hero-scroll-dark" id="heroScrollDark"><div class="hero-scroll-dark-inner" id="heroScrollDarkInner"></div></div>
@@ -953,6 +953,15 @@ function openEpDetail(epN,sn){
   const lnk=_epFinalLinks[sn+'_'+epN]||ep.link||'#';
   if(lnk&&lnk!=='#'){playBtn.href=lnk;playBtn.className='ep-detail-play';}
   else{playBtn.href='#';playBtn.className='ep-detail-play no-link';playBtn.onclick=e=>e.preventDefault();}
+  // Restaurar estado de descarga del episodio actual
+  const _dlDetailBtn=document.getElementById('epDetailDlBtn');
+  if(_dlDetailBtn){
+    const _dlKey='s'+sn+'e'+epN+'.mp4';
+    if(typeof AndroidStorage!=='undefined'&&typeof AndroidStorage.fileExists==='function'){
+      try{if(AndroidStorage.fileExists(_dlKey)){_dlDetailBtn.classList.add('dl-done');_dlDetailBtn.classList.remove('dl-loading');}
+      else{_dlDetailBtn.classList.remove('dl-done','dl-loading');}}catch(e){}
+    }else{_dlDetailBtn.classList.remove('dl-done','dl-loading');}
+  }
   const nextEp=eps.find(e=>e.n===epN+1)||(sn<TOTAL_SEASONS&&SEASONS[sn+1]?SEASONS[sn+1][0]:null);
   const nextSn=eps.find(e=>e.n===epN+1)?sn:sn+1;
   const nextWrap=document.getElementById('epDetailNextWrap');
@@ -960,7 +969,8 @@ function openEpDetail(epN,sn){
   if(nextEp){
     nextWrap.style.display='';
     const nextKey='s'+nextSn+'e'+nextEp.n;
-    nextCard.innerHTML='<div class="ep-detail-next-thumb">'+(nextEp.still?'<img src="'+nextEp.still+'" alt="">':'')+'</div><div class="ep-detail-next-info"><div class="ep-detail-next-num">EP '+nextEp.n+'</div><div class="ep-detail-next-title">'+nextEp.title+'</div></div><button class="ep-detail-next-dl" id="dlbtn_'+nextKey+'" onclick="downloadEp(event,\''+nextKey+'\','+nextEp.n+')" title="Descargar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></button>';
+    const _nxtDone=(typeof AndroidStorage!=='undefined'&&typeof AndroidStorage.fileExists==='function')?(()=>{try{return AndroidStorage.fileExists(nextKey+'.mp4');}catch(e){return false;}})():false;
+    nextCard.innerHTML='<div class="ep-detail-next-thumb">'+(nextEp.still?'<img src="'+nextEp.still+'" alt="">':'')+'</div><div class="ep-detail-next-info"><div class="ep-detail-next-num">EP '+nextEp.n+'</div><div class="ep-detail-next-title">'+nextEp.title+'</div></div><button class="ep-detail-next-dl'+(_nxtDone?' dl-done':'')+'" id="dlbtn_'+nextKey+'" onclick="downloadEp(event,\''+nextKey+'\','+nextEp.n+')" title="Descargar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></button>';
     nextCard.onclick=()=>openEpDetail(nextEp.n,nextSn);
   }else{nextWrap.style.display='none';}
   // Like/dislike
